@@ -52,9 +52,15 @@ const Shelf = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    border: 1px solid white;
+    color: black;
     cursor: pointer;
+
+    box-shadow: 
+        3px 0 black, 
+        -3px 0 black, 
+        0 3px black, 
+        0 -3px black;
+
 `
 
 const ShelfContainer = styled.div<IProps>`

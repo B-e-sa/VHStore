@@ -5,6 +5,9 @@ import styled from 'styled-components';
 import { useAppSelector } from '../hooks/hooks';
 import { API_KEY, API_URL } from '../utils/API';
 import RenterInsides from './RenterInsides';
+import waiter from '../assets/waiter.svg';
+import chat from '../assets/chat.png';
+import menu from '../assets/menu.png';
 
 interface IData {
     results: [
@@ -16,6 +19,10 @@ interface IData {
     ]
 }
 
+interface IHome {
+    mapActive: boolean
+}
+
 const Home = () => {
 
     const genreId = useAppSelector(state => state.genre.genreId)
@@ -25,7 +32,7 @@ const Home = () => {
 
     const [search, setSearch] = useState('');
 
-    const [genres, setGenres] = useState<string[]>();
+    const [insidesShowing, setInsidesShowing] = useState(true);
 
     const getPopularMovies = async () => {
         await
@@ -58,18 +65,37 @@ const Home = () => {
     }, [search])
 
     return (
-        <HomeContainer>
+        <HomeContainer mapActive={insidesShowing}>
             <div>
-                <Search
-                    type="text"
-                    placeholder='Search'
-                    onChange={(e) => setSearch(e.target.value)}
-                    name='Search'
-                />
-                <RenterInsides />
+                <div style={{ display: 'flex' }}>
+                    <img src={waiter} width={50} alt="" />
+                    <div style={{ position: 'relative' }} >
+                        <ChatQuote>
+                            Hey! You can ask me to search a movie title for you right
+                            below! Or... click on the "menu" button on the search's left
+                            to open the store map
+                        </ChatQuote>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Search
+                        type="text"
+                        placeholder='Search'
+                        onChange={(e) => setSearch(e.target.value)}
+                        name='Search'
+                    />
+                    <img
+                        src={menu}
+                        onClick={() => setInsidesShowing(!insidesShowing)}
+                        width={50}
+                        height={50}
+                        alt=""
+                    />
+                </div>
+                {insidesShowing && <RenterInsides />}
             </div>
             <Shelf>
-                <h1 style={{ position: 'absolute', top: '115px' }} >{genreName.toUpperCase()}</h1>
+                <GenreTag>{ genreName == '' ? 'Popular' : genreName.toUpperCase()}</GenreTag>
                 <FirstShelfSpace />
                 <SecondShelfSpace />
                 {data &&
@@ -95,33 +121,54 @@ const Home = () => {
     )
 }
 
-const HomeContainer = styled.div`
+const GenreTag = styled.h1`
+    position: absolute;
+    top: 25px;
+`
+
+const ChatQuote = styled.p`
+    border: 2px solid black;
+    background-color: white;
+    padding: 10px;
+    width: 510px;
+    margin-block: 5px;
+    font-size: 15pt;
+`
+
+const HomeContainer = styled.div<IHome>`
     display: flex;
-    flex-direction: row;
+    flex-direction: ${props => props.mapActive ? 'row' : 'column'};
     justify-content: center;
     align-items: center;
     width: 100vw;
     position: relative;
-    height: 100vh;
+    height: ${props => props.mapActive ? '100vh' : 'fit-content'};
 `
 
 const Search = styled.input`
+    width: 500px;
+    height: 50px;
+    margin-bottom: 10px;
+    font-size: 20pt;
+    padding-left: 20px;
+    margin-right: 10px;
 `;
 
 const Shelf = styled.div`
     display: flex;
-    height: 550px;
+    height: 600px;
     width: 550px;
-    background-color: white;
+    background-color: #887143;
     align-items: center;
     justify-content: center;
-`;
+    position: relative;
+`
 
 const FirstShelfSpace = styled.div`
     width: 530px;
     height: 230px;
     background-color: black;
-    top: 160px;
+    top: 75px;
     position: absolute;
 `
 
@@ -130,7 +177,7 @@ const SecondShelfSpace = styled.div`
     height: 230px;
     background-color: black;
     position: absolute;
-    top: 410px;
+    top: 335px;
 `
 
 const VhsCover = styled.div`
@@ -152,7 +199,8 @@ const MoviesContainer = styled.div`
     row-gap: 70px;
     overflow: hidden;
     transform: skew(-3deg);
-    margin-top: 50px;
+    top: 37px;
+    position: relative;
 `;
 
 const MovieTitle = styled.p`
