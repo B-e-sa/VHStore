@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '../hooks/hooks';
-import { API_KEY, API_SEARCH_URL, API_URL } from '../utils/API';
+import { useAppSelector } from '../hooks/hooks';
+import { API_KEY, API_URL } from '../utils/API';
 import RenterInsides from './RenterInsides';
 
 interface IData {
@@ -18,7 +18,8 @@ interface IData {
 
 const Home = () => {
 
-    const genre = useAppSelector(state => state.genre.genre)
+    const genreId = useAppSelector(state => state.genre.genreId)
+    const genreName = useAppSelector(state => state.genre.genreName)
 
     const [data, setData] = useState<IData>();
 
@@ -42,13 +43,13 @@ const Home = () => {
 
     const searchGenres = async () => {
         await
-            axios.get(`${API_URL}/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genre}&with_watch_monetization_types=flatrate`)
+            axios.get(`${API_URL}/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genreId}&with_watch_monetization_types=flatrate`)
                 .then(res => setData(res?.data))
     }
 
     useEffect(() => { getPopularMovies(); }, []);
 
-    useEffect(() => { searchGenres() }, [genre])
+    useEffect(() => { searchGenres() }, [genreId])
 
     useEffect(() => {
 
@@ -68,6 +69,7 @@ const Home = () => {
                 <RenterInsides />
             </div>
             <Shelf>
+                <h1 style={{ position: 'absolute', top: '115px' }} >{genreName.toUpperCase()}</h1>
                 <FirstShelfSpace />
                 <SecondShelfSpace />
                 {data &&

@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { searchedGenre } from "../features/genreSlice"
-import { useAppDispatch } from "../hooks"
+import { useAppDispatch } from "../hooks/hooks"
 
 interface IProps {
     cols: string
@@ -38,7 +37,7 @@ const makeShelves = ({
                     <Shelf
                         key={item.id}
                         onClick={() => {
-                            dispatch(searchedGenre({ genre: item.id }))
+                            dispatch(searchedGenre({ genreId: item.id, genreName: item.name }))
                         }}
                     >
                         <p>{item.name}</p>

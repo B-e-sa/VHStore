@@ -2,10 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const genreSlice = createSlice({
     name: 'genre',
-    initialState: { genre: 0 },
+    initialState: { genreId: 0, genreName: '' },
     reducers: {
         searchedGenre(state, { payload }) {
-            state.genre = payload.genre
+            state.genreId = payload.genreId
+            state.genreName = payload.genreName
         }
     }
 })
