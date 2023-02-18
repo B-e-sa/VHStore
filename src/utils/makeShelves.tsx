@@ -1,6 +1,6 @@
 import styled from "styled-components"
-import { searchedGenre } from "../features/genreSlice"
-import { useAppDispatch } from "../hooks/hooks"
+import { fetchMoviesByGenre } from "../features/apiSlice"
+import { useAppDispatch, useAppSelector } from "../hooks/hooks"
 
 interface IProps {
     cols: string
@@ -22,6 +22,7 @@ const makeShelves = ({
 }) => {
 
     const dispatch = useAppDispatch();
+    const currentPage = useAppSelector(state => state.api.currentPage)
 
     return (
         <ShelfContainer
@@ -37,7 +38,10 @@ const makeShelves = ({
                     <Shelf
                         key={item.id}
                         onClick={() => {
-                            dispatch(searchedGenre({ genreId: item.id, genreName: item.name }))
+                            dispatch(fetchMoviesByGenre({
+                                genreId: item.id,
+                                currentPage: currentPage
+                            }))
                         }}
                     >
                         <p>{item.name}</p>

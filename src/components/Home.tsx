@@ -1,15 +1,13 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../hooks/hooks';
-import { API_KEY, API_URL } from '../utils/API';
-import RenterInsides from './RenterInsides';
-import waiter from '../assets/waiter.svg';
-import chat from '../assets/chat.png';
 import menu from '../assets/menu.png';
+import waiter from '../assets/waiter.svg';
+import { goToNextPage, goToPreviousPage } from '../features/apiSlice';
+import { useAppDispatch, useAppSelector } from '../hooks/hooks';
+import RenterInsides from './RenterInsides';
+import VHSCover from './VHSCover';
 
-interface IData {
+interface Iata {
     results: [
         {
             title: string
@@ -25,44 +23,15 @@ interface IHome {
 
 const Home = () => {
 
-    const genreId = useAppSelector(state => state.genre.genreId)
-    const genreName = useAppSelector(state => state.genre.genreName)
+    // data isFetching isLoading error
 
-    const [data, setData] = useState<IData>();
+    const dispatch = useAppDispatch()
 
-    const [search, setSearch] = useState('');
+    const currentPage = useAppSelector(state => state.api.currentPage);
+    const genreId = useAppSelector(state => state.api.currentGenreId);
+    const genreName = useAppSelector(state => state.api.currentGenreName);
 
     const [insidesShowing, setInsidesShowing] = useState(true);
-
-    const getPopularMovies = async () => {
-        await
-            axios.get(`${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`)
-                .then(res => setData(res?.data))
-                .catch(err => console.log(err));
-    }
-
-    const searchMovie = async () => {
-        await
-            axios.get(`${API_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${search}&page=1&include_adult=false`)
-                .then((res) => setData(res?.data))
-                .catch(err => console.log(err))
-    }
-
-    const searchGenres = async () => {
-        await
-            axios.get(`${API_URL}/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genreId}&with_watch_monetization_types=flatrate`)
-                .then(res => setData(res?.data))
-    }
-
-    useEffect(() => { getPopularMovies(); }, []);
-
-    useEffect(() => { searchGenres() }, [genreId])
-
-    useEffect(() => {
-
-        search == '' ? getPopularMovies() : searchMovie();
-
-    }, [search])
 
     return (
         <HomeContainer mapActive={insidesShowing}>
@@ -81,7 +50,7 @@ const Home = () => {
                     <Search
                         type="text"
                         placeholder='Search'
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {}}
                         name='Search'
                     />
                     <img
@@ -95,34 +64,27 @@ const Home = () => {
                 {insidesShowing && <RenterInsides />}
             </div>
             <Shelf>
-                <GenreTag>{ genreName == '' ? 'Popular' : genreName.toUpperCase()}</GenreTag>
-                <FirstShelfSpace />
-                <SecondShelfSpace />
-                {data &&
-                    <MoviesContainer>
-                        {data.results.map(movie => {
-                            return (
-                                <Link
-                                    key={movie.id}
-                                    to={`/movieinfo/${movie.id}`}
-                                    style={{ color: 'black' }}
-                                >
-                                    <VhsCover>
-                                        <MovieTitle>
-                                            {movie.title}
-                                        </MovieTitle>
-                                    </VhsCover>
-                                </Link>
-                            )
-                        })}
-                    </MoviesContainer>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>
+                    <span onClick={() => dispatch(goToPreviousPage({ currentPage }))}> {'<'} </span>
+                    <GenreTag>{genreName == '' ? 'Popular' : genreName.toUpperCase()}</GenreTag>
+                    <span onClick={() => dispatch(goToNextPage())}> {'>'} </span>
+                </div>
+                <FirstShelfSpace>
+                    <VHSContainer>
+                        <VHSCover division={1} />
+                    </VHSContainer>
+                </FirstShelfSpace>
+                <SecondShelfSpace>
+                    <VHSContainer>
+                        <VHSCover division={2} />
+                    </VHSContainer>
+                </SecondShelfSpace>
             </Shelf>
-        </HomeContainer>
+        </HomeContainer >
     )
 }
 
 const GenreTag = styled.h1`
-    position: absolute;
     top: 25px;
 `
 
@@ -156,6 +118,7 @@ const Search = styled.input`
 
 const Shelf = styled.div`
     display: flex;
+    flex-direction: column;
     height: 600px;
     width: 550px;
     background-color: #887143;
@@ -164,49 +127,33 @@ const Shelf = styled.div`
     position: relative;
 `
 
+const VHSContainer = styled.div`
+display: grid;
+grid-template-columns: repeat(10, 50px);
+grid-template-rows: repeat(2, 190px);
+row-gap: 70px;
+overflow: hidden;
+transform: skew(-3deg);
+top: 37px;
+position: relative;
+`
+
 const FirstShelfSpace = styled.div`
     width: 530px;
     height: 230px;
     background-color: black;
-    top: 75px;
-    position: absolute;
+    position: relative;
 `
 
 const SecondShelfSpace = styled.div`
     width: 530px;
     height: 230px;
     background-color: black;
-    position: absolute;
-    top: 335px;
-`
-
-const VhsCover = styled.div`
-    background-color: white;
-    background-repeat: no-repeat;
-    background-position-x: -30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    height: 100%;
     position: relative;
 `
 
 const MoviesContainer = styled.div`
-    display: grid;
-    grid-template-columns: repeat(10, 50px);
-    grid-template-rows: repeat(2, 190px);
-    row-gap: 70px;
-    overflow: hidden;
-    transform: skew(-3deg);
-    top: 37px;
-    position: relative;
 `;
 
-const MovieTitle = styled.p`
-    writing-mode: vertical-rl;
-    rotate: 180deg;
-    text-align: center;
-`
 
 export default Home;

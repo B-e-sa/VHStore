@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import genreReducer from './features/genreSlice'
+import apiSlice from './features/apiSlice';
 
 export const store = configureStore({
     reducer: {
-        genre: genreReducer
+        api: apiSlice.reducer
     }
 })
 
